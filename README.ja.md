@@ -6,7 +6,15 @@
 
 Hearth はローカルの `forge`・`cast`・`anvil`・`chisel` を Claude スタイルの美しいデスクトップアプリに包み込みます。コントラクトのデプロイ、トランザクション送信、失敗のトレース、ローカルチェーンの起動——コマンドラインフラグを覚える必要はありません。
 
-![Hearth](docs/screenshot.png)
+<p align="center">
+  <img src="docs/screenshot.png" alt="Hearth — light" width="49.5%">
+  <img src="docs/screenshot-dark.png" alt="Hearth — dark" width="49.5%">
+</p>
+
+## ダウンロード
+
+最新の `.dmg` は [**Releases**](https://github.com/Cafexss/hearth-foundry-gui/releases) から入手できます（Apple Silicon / Intel 両対応）。
+アプリは未署名です。初回起動時はアプリを右クリックして「開く」を選択するか、`xattr -dr com.apple.quarantine /Applications/Hearth.app` を実行してください。
 
 ## 必要環境
 

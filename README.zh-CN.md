@@ -6,7 +6,15 @@
 
 Hearth 将本地的 `forge`、`cast`、`anvil`、`chisel` 封装为一个 Claude 风格的简洁桌面应用——部署合约、发送交易、追踪失败原因、启动本地链，全程无需记忆任何命令行参数。
 
-![Hearth](docs/screenshot.png)
+<p align="center">
+  <img src="docs/screenshot.png" alt="Hearth — light" width="49.5%">
+  <img src="docs/screenshot-dark.png" alt="Hearth — dark" width="49.5%">
+</p>
+
+## 下载
+
+从 [**Releases**](https://github.com/Cafexss/hearth-foundry-gui/releases) 下载最新 `.dmg`（Apple Silicon 与 Intel 双版本）。
+应用未签名——首次启动请右键点击应用选择「打开」，或执行 `xattr -dr com.apple.quarantine /Applications/Hearth.app`。
 
 ## 依赖
 

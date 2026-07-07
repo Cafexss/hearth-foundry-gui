@@ -6,7 +6,15 @@
 
 Hearth는 로컬의 `forge`, `cast`, `anvil`, `chisel`을 Claude 스타일의 깔끔한 데스크톱 앱으로 감쌉니다. 컨트랙트 배포, 트랜잭션 전송, 실패 추적, 로컬 체인 실행까지 — 커맨드라인 플래그를 외울 필요가 없습니다.
 
-![Hearth](docs/screenshot.png)
+<p align="center">
+  <img src="docs/screenshot.png" alt="Hearth — light" width="49.5%">
+  <img src="docs/screenshot-dark.png" alt="Hearth — dark" width="49.5%">
+</p>
+
+## 다운로드
+
+최신 `.dmg`는 [**Releases**](https://github.com/Cafexss/hearth-foundry-gui/releases)에서 받을 수 있습니다 (Apple Silicon / Intel 지원).
+앱은 서명되지 않았습니다. 첫 실행 시 앱을 우클릭해 「열기」를 선택하거나 `xattr -dr com.apple.quarantine /Applications/Hearth.app`을 실행하세요.
 
 ## 요구 사항
 

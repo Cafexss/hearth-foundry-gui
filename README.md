@@ -6,7 +6,15 @@ English · [中文](README.zh-CN.md) · [日本語](README.ja.md) · [한국어]
 
 Hearth wraps your local `forge`, `cast`, `anvil` and `chisel` binaries in a clean, Claude-style desktop app — deploy contracts, send transactions, trace failures and spin up local chains without memorizing a single flag.
 
-![Hearth](docs/screenshot.png)
+<p align="center">
+  <img src="docs/screenshot.png" alt="Hearth — light" width="49.5%">
+  <img src="docs/screenshot-dark.png" alt="Hearth — dark" width="49.5%">
+</p>
+
+## Download
+
+Grab the latest `.dmg` from [**Releases**](https://github.com/Cafexss/hearth-foundry-gui/releases) (Apple Silicon & Intel).
+The app is unsigned — on first launch, right-click the app and choose **Open**, or run `xattr -dr com.apple.quarantine /Applications/Hearth.app`.
 
 ## Requirements
 

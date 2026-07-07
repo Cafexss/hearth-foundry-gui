@@ -3,12 +3,43 @@
   "productName": "Hearth",
   "version": "0.3.0",
   "description": "A warm, elegant desktop GUI for the Foundry toolchain (forge / cast / anvil / chisel)",
+  "author": "Hearth contributors",
+  "homepage": "https://github.com/Cafexss/hearth-foundry-gui",
   "main": "main.js",
   "license": "MIT",
   "scripts": {
-    "start": "electron ."
+    "start": "electron .",
+    "dist": "electron-builder --mac dmg"
+  },
+  "build": {
+    "appId": "app.hearth.desktop",
+    "productName": "Hearth",
+    "files": [
+      "main.js",
+      "preload.js",
+      "renderer/**/*",
+      "build/icon.png",
+      "package.json"
+    ],
+    "directories": {
+      "buildResources": "build",
+      "output": "dist"
+    },
+    "mac": {
+      "category": "public.app-category.developer-tools",
+      "icon": "build/icon.icns",
+      "target": [
+        { "target": "dmg", "arch": ["arm64", "x64"] }
+      ],
+      "identity": null
+    },
+    "dmg": {
+      "title": "Hearth ${version}",
+      "artifactName": "Hearth-${version}-${arch}.dmg"
+    }
   },
   "devDependencies": {
-    "electron": "^43.0.0"
+    "electron": "^43.0.0",
+    "electron-builder": "^26.15.3"
   }
 }
