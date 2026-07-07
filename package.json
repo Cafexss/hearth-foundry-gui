@@ -1,0 +1,14 @@
+{
+  "name": "hearth",
+  "productName": "Hearth",
+  "version": "0.3.0",
+  "description": "A warm, elegant desktop GUI for the Foundry toolchain (forge / cast / anvil / chisel)",
+  "main": "main.js",
+  "license": "MIT",
+  "scripts": {
+    "start": "electron ."
+  },
+  "devDependencies": {
+    "electron": "^43.0.0"
+  }
+}

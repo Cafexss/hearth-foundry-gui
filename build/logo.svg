@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#E08862"/>
+      <stop offset="1" stop-color="#C4633F"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.5" cy="0.42" r="0.65">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.14"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- squircle background -->
+  <rect x="100" y="100" width="824" height="824" rx="186" fill="url(#bg)"/>
+  <rect x="100" y="100" width="824" height="824" rx="186" fill="url(#glow)"/>
+
+  <!-- anvil (ivory) -->
+  <g fill="#FAF9F5">
+    <!-- horn: concave top, full belly, rounded tip -->
+    <path d="M 372 394 C 312 418 252 428 218 430 Q 200 431 202 446 C 210 494 296 528 374 528 Z"
+          stroke="#FAF9F5" stroke-width="10" stroke-linejoin="round"/>
+    <!-- top block -->
+    <rect x="330" y="392" width="495" height="138" rx="32"/>
+    <!-- waist -->
+    <rect x="488" y="522" width="180" height="108"/>
+    <!-- base trapezoid -->
+    <path d="M 448 626 L 706 626 L 758 708 L 396 708 Z" stroke="#FAF9F5" stroke-width="24" stroke-linejoin="round"/>
+    <!-- base plate -->
+    <rect x="356" y="704" width="444" height="60" rx="20"/>
+  </g>
+
+  <!-- spark -->
+  <path d="M 762 232 C 771 280 787 296 835 305 C 787 314 771 330 762 378 C 753 330 737 314 689 305 C 737 296 753 280 762 232 Z"
+        fill="#FAF9F5" opacity="0.92"/>
+  <circle cx="652" cy="238" r="13" fill="#FAF9F5" opacity="0.55"/>
+</svg>

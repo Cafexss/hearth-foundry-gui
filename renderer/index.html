@@ -1,0 +1,1129 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>Hearth</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="app">
+  <!-- ============================ Sidebar ============================ -->
+  <aside class="sidebar">
+    <div class="brand">
+      <h1><span class="logo"><svg viewBox="0 0 1024 1024" width="17" height="17" aria-hidden="true">
+        <g fill="#FAF9F5">
+          <path d="M 372 394 C 312 418 252 428 218 430 Q 200 431 202 446 C 210 494 296 528 374 528 Z" stroke="#FAF9F5" stroke-width="10" stroke-linejoin="round"/>
+          <rect x="330" y="392" width="495" height="138" rx="32"/>
+          <rect x="488" y="522" width="180" height="108"/>
+          <path d="M 448 626 L 706 626 L 758 708 L 396 708 Z" stroke="#FAF9F5" stroke-width="24" stroke-linejoin="round"/>
+          <rect x="356" y="704" width="444" height="60" rx="20"/>
+        </g>
+        <path d="M 762 232 C 771 280 787 296 835 305 C 787 314 771 330 762 378 C 753 330 737 314 689 305 C 737 296 753 280 762 232 Z" fill="#FAF9F5" opacity="0.92"/>
+      </svg></span>Hearth</h1>
+      <div class="sub">forge · cast · anvil · chisel</div>
+    </div>
+    <nav class="nav" id="nav">
+      <div class="group-label">概览</div>
+      <button data-page="dashboard" class="active"><span class="ico">◈</span>仪表盘</button>
+      <div class="group-label">Forge · 开发</div>
+      <button data-page="forge"><span class="ico">⚒</span>项目构建 &amp; 测试</button>
+      <button data-page="deploy"><span class="ico">↗</span>合约部署</button>
+      <div class="group-label">Cast · 链上交互</div>
+      <button data-page="transfer"><span class="ico">⇢</span>转账</button>
+      <button data-page="interact"><span class="ico">⇄</span>合约调用</button>
+      <button data-page="workbench"><span class="ico">▤</span>ABI 工作台</button>
+      <button data-page="query"><span class="ico">☰</span>链上查询</button>
+      <button data-page="debug"><span class="ico">◎</span>调试 &amp; 日志</button>
+      <button data-page="tools"><span class="ico">⌗</span>编码 &amp; 转换</button>
+      <button data-page="wallet"><span class="ico">◉</span>钱包工具</button>
+      <div class="group-label">本地节点</div>
+      <button data-page="anvil"><span class="ico">▶</span>Anvil 节点</button>
+      <button data-page="chisel"><span class="ico">›_</span>Chisel REPL</button>
+      <div class="group-label">配置</div>
+      <button data-page="settings"><span class="ico">⚙</span>网络 &amp; 设置</button>
+    </nav>
+    <div class="sidebar-footer">
+      <span class="ver" id="foundry-ver">…</span>
+      <div class="row-c" style="gap:6px">
+        <select id="locale-select" style="width:auto;padding:4px 6px;font-size:11.5px;border-radius:7px">
+          <option value="zh">中文</option>
+          <option value="en">EN</option>
+          <option value="ja">日本語</option>
+          <option value="ko">한국어</option>
+        </select>
+        <button class="theme-toggle" id="theme-toggle" title="切换主题">◐</button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ============================ Main ============================ -->
+  <div class="main">
+    <div class="topbar">
+      <div class="page-title" id="topbar-title">仪表盘</div>
+      <div class="right">
+        <div class="chain-pill" id="chain-pill">
+          <span class="dot" id="chain-dot"></span>
+          <span id="chain-name">—</span>
+          <span style="color:var(--text-3)">▾</span>
+        </div>
+      </div>
+    </div>
+    <div class="chain-menu" id="chain-menu"></div>
+
+    <div class="content">
+
+      <!-- ================= Dashboard ================= -->
+      <section class="page active" id="page-dashboard">
+        <div class="page-head">
+          <h2>仪表盘</h2>
+          <p>当前网络状态与工具链版本一览。</p>
+        </div>
+        <div class="stat-grid">
+          <div class="stat"><div class="k">当前网络</div><div class="v" id="d-chain">—</div><div class="s" id="d-chainid"></div></div>
+          <div class="stat"><div class="k">最新区块</div><div class="v" id="d-block">—</div><div class="s" id="d-block-time"></div></div>
+          <div class="stat"><div class="k">Gas 价格</div><div class="v" id="d-gas">—</div><div class="s">base fee</div></div>
+          <div class="stat"><div class="k">RPC 延迟</div><div class="v" id="d-latency">—</div><div class="s" id="d-rpc-host"></div></div>
+        </div>
+        <div class="grid c2">
+          <div class="card">
+            <h3>快速余额查询</h3>
+            <div class="row">
+              <div class="field">
+                <label>地址 / ENS</label>
+                <input type="text" id="d-bal-addr" placeholder="0x… 或 vitalik.eth">
+              </div>
+              <button class="btn primary" id="d-bal-btn">查询</button>
+            </div>
+            <div class="result-box" id="d-bal-out"></div>
+          </div>
+          <div class="card">
+            <h3>工具链版本</h3>
+            <div id="d-versions"><div class="empty-hint">检测中…</div></div>
+          </div>
+        </div>
+        <div class="card">
+          <h3>快捷入口</h3>
+          <div class="btn-row">
+            <button class="btn" data-goto="transfer">⇢ 转账</button>
+            <button class="btn" data-goto="deploy">↗ 部署合约</button>
+            <button class="btn" data-goto="interact">⇄ 调用合约</button>
+            <button class="btn" data-goto="anvil">▶ 启动本地节点</button>
+            <button class="btn" data-goto="chisel">›_ 打开 Solidity REPL</button>
+            <button class="btn" data-goto="tools">⌗ 单位转换</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="row-c" style="justify-content:space-between;margin-bottom:10px">
+            <h3 style="margin-bottom:0">交易记录 <span class="hint">本机发出的部署 / 转账 / 写入交易</span></h3>
+            <button class="icon-btn" id="hist-clear">清空</button>
+          </div>
+          <table class="list" id="hist-table">
+            <thead><tr><th>时间</th><th>类型</th><th>网络</th><th>详情</th><th>交易哈希</th></tr></thead>
+            <tbody></tbody>
+          </table>
+          <div class="empty-hint" id="hist-empty">暂无记录</div>
+        </div>
+      </section>
+
+      <!-- ================= Forge: build & test ================= -->
+      <section class="page" id="page-forge">
+        <div class="page-head">
+          <h2>项目构建 &amp; 测试</h2>
+          <p>选择本地 Foundry 项目，执行 build / test / fmt / coverage 等操作。</p>
+        </div>
+        <div class="card">
+          <h3>项目目录</h3>
+          <div class="row">
+            <div class="field">
+              <label>Foundry 项目路径（包含 foundry.toml）</label>
+              <input type="text" id="f-project" placeholder="/path/to/project">
+            </div>
+            <button class="btn" id="f-pick">浏览…</button>
+            <button class="btn" id="f-init">新建项目 (forge init)</button>
+          </div>
+          <div id="f-project-status" style="margin-top:8px"></div>
+        </div>
+        <div class="card">
+          <h3>操作</h3>
+          <div class="btn-row" style="margin-top:0">
+            <button class="btn primary" data-forge="build">⚒ Build</button>
+            <button class="btn primary" data-forge="test">✓ Test</button>
+            <button class="btn" data-forge="test-vvv">Test -vvv</button>
+            <button class="btn" data-forge="fmt">Fmt 格式化</button>
+            <button class="btn" data-forge="snapshot">Gas Snapshot</button>
+            <button class="btn" data-forge="coverage">Coverage</button>
+            <button class="btn" data-forge="clean">Clean</button>
+            <button class="btn danger sm" id="f-stop" disabled>■ 停止</button>
+          </div>
+          <div class="row" style="margin-top:12px">
+            <div class="field">
+              <label>测试过滤（--match-test / 可留空）</label>
+              <input type="text" id="f-match" placeholder="testTransfer">
+            </div>
+            <div class="field">
+              <label>附加参数</label>
+              <input type="text" id="f-extra" placeholder="--via-ir --optimize">
+            </div>
+          </div>
+          <div class="term-tools">
+            <span class="lab">输出</span>
+            <div class="acts">
+              <button class="icon-btn" data-copy-term="f-term">复制</button>
+              <button class="icon-btn" data-clear-term="f-term">清空</button>
+            </div>
+          </div>
+          <div class="term" id="f-term" data-placeholder="forge 输出将显示在这里…" style="max-height:none;height:340px"></div>
+        </div>
+      </section>
+
+      <!-- ================= Deploy ================= -->
+      <section class="page" id="page-deploy">
+        <div class="page-head">
+          <h2>合约部署</h2>
+          <p>基于 forge create 快速部署合约到任意网络，自动解析构造函数参数。</p>
+        </div>
+        <div class="card">
+          <h3>1 · 选择项目与合约</h3>
+          <div class="row">
+            <div class="field">
+              <label>项目路径</label>
+              <input type="text" id="dep-project" placeholder="/path/to/project">
+            </div>
+            <button class="btn" id="dep-pick">浏览…</button>
+            <button class="btn" id="dep-build">先构建</button>
+          </div>
+          <div class="row" style="margin-top:10px">
+            <div class="field">
+              <label>合约</label>
+              <select id="dep-contract"><option value="">— 请先选择项目 —</option></select>
+            </div>
+            <button class="btn sm" id="dep-rescan">刷新</button>
+          </div>
+          <div id="dep-ctor" style="margin-top:6px"></div>
+        </div>
+        <div class="card">
+          <h3>2 · 账户与网络 <span class="hint">部署将发送到右上角选定的网络</span></h3>
+          <div class="grid c3">
+            <div class="field">
+              <label>私钥（仅本地使用，不会存储）</label>
+              <input type="password" id="dep-pk" placeholder="0x…">
+            </div>
+            <div class="field">
+              <label>或 Keystore 账户名（cast wallet 管理）</label>
+              <input type="text" id="dep-account" placeholder="my-account（留空则使用私钥）">
+            </div>
+            <div class="field">
+              <label>Keystore 密码（使用账户名时必填）</label>
+              <input type="password" id="dep-pass" placeholder="密码">
+            </div>
+          </div>
+          <div class="grid c3">
+            <div class="field">
+              <label>ETH 附带金额（可选）</label>
+              <input type="text" id="dep-value" placeholder="0.1ether">
+            </div>
+            <div class="field">
+              <label>Gas Limit（可选）</label>
+              <input type="text" id="dep-gas" placeholder="自动估算">
+            </div>
+            <div class="field">
+              <label>附加参数</label>
+              <input type="text" id="dep-extra" placeholder="--legacy 等">
+            </div>
+          </div>
+          <label class="row-c" style="font-size:12.5px;color:var(--text-2);margin-top:4px">
+            <input type="checkbox" id="dep-verify" style="width:auto"> 部署后自动验证（需在设置中配置 Etherscan API Key）
+          </label>
+        </div>
+        <div class="card">
+          <div class="tabs" id="dep-tabs">
+            <button data-tab="dep-create" class="active">3 · 单合约部署 (forge create)</button>
+            <button data-tab="dep-script">3 · 脚本部署 (forge script)</button>
+          </div>
+          <div class="tab-pane active" id="tab-dep-create">
+            <div class="btn-row" style="margin-top:0">
+              <button class="btn" id="dep-dry">模拟估算 (dry-run)</button>
+              <button class="btn primary" id="dep-go">🚀 部署合约</button>
+            </div>
+          </div>
+          <div class="tab-pane" id="tab-dep-script">
+            <div class="row">
+              <div class="field">
+                <label>部署脚本（script/*.s.sol）</label>
+                <select id="dep-script"><option value="">— 请先选择项目 —</option></select>
+              </div>
+              <button class="btn sm" id="dep-script-rescan">刷新</button>
+            </div>
+            <div class="grid c2" style="margin-top:10px">
+              <div class="field">
+                <label>入口函数 --sig（默认 run()）</label>
+                <input type="text" id="dep-sig" placeholder="run()">
+              </div>
+              <div class="field">
+                <label>附加参数（如 --slow --skip-simulation）</label>
+                <input type="text" id="dep-script-extra" placeholder="">
+              </div>
+            </div>
+            <div class="btn-row" style="margin-top:4px">
+              <button class="btn" id="dep-script-sim">模拟执行（不广播）</button>
+              <button class="btn primary" id="dep-script-go">🚀 广播执行 (--broadcast)</button>
+            </div>
+            <div class="note">脚本使用上方「账户与网络」的私钥 / Keystore 账户签名；模拟执行无需签名信息。</div>
+          </div>
+          <div class="term-tools">
+            <span class="lab">输出</span>
+            <div class="acts">
+              <button class="icon-btn" data-copy-term="dep-term">复制</button>
+              <button class="icon-btn" data-clear-term="dep-term">清空</button>
+            </div>
+          </div>
+          <div class="term" id="dep-term" data-placeholder="部署日志将显示在这里…"></div>
+          <div id="dep-result"></div>
+        </div>
+      </section>
+
+      <!-- ================= Transfer ================= -->
+      <section class="page" id="page-transfer">
+        <div class="page-head">
+          <h2>转账</h2>
+          <p>原生代币（ETH 等 gas 币）与 ERC-20 代币转账，发送到右上角选定的网络。</p>
+        </div>
+        <div class="card">
+          <h3>发送账户 <span class="hint">本页两种转账共用</span></h3>
+          <div class="grid c3">
+            <div class="field">
+              <label>私钥（仅本地使用，不会存储）</label>
+              <input type="password" id="tr-pk" placeholder="0x…">
+            </div>
+            <div class="field">
+              <label>或 Keystore 账户名</label>
+              <input type="text" id="tr-account" placeholder="my-account（留空则使用私钥）">
+            </div>
+            <div class="field">
+              <label>Keystore 密码（使用账户名时必填）</label>
+              <input type="password" id="tr-pass" placeholder="密码">
+            </div>
+          </div>
+          <div class="row-c">
+            <button class="btn sm" id="tr-whoami">查看地址与余额</button>
+            <span id="tr-whoami-out" style="font-size:12.5px;font-family:var(--font-mono);color:var(--text-2)"></span>
+          </div>
+        </div>
+        <div class="grid c2">
+          <div class="card">
+            <h3>原生代币转账 <span class="hint">ETH / BNB / MATIC …</span></h3>
+            <div class="field">
+              <label>接收地址 / ENS</label>
+              <input type="text" id="tr-eth-to" placeholder="0x… 或 name.eth">
+            </div>
+            <div class="field">
+              <label>金额（单位：ether）</label>
+              <input type="text" id="tr-eth-amount" placeholder="0.1">
+            </div>
+            <div class="btn-row">
+              <button class="btn" id="tr-eth-max">全部余额（留 gas）</button>
+              <button class="btn primary" id="tr-eth-go">发送</button>
+            </div>
+            <div class="result-box" id="tr-eth-out"></div>
+          </div>
+          <div class="card">
+            <h3>ERC-20 代币转账</h3>
+            <div class="row">
+              <div class="field">
+                <label>代币合约地址</label>
+                <input type="text" id="tr-tok-addr" placeholder="0x…">
+              </div>
+              <button class="btn sm" id="tr-tok-info">查询代币</button>
+            </div>
+            <div id="tr-tok-meta" style="font-size:12.5px;color:var(--text-2);margin:2px 0 10px;font-family:var(--font-mono)"></div>
+            <div class="field">
+              <label>接收地址 / ENS</label>
+              <input type="text" id="tr-tok-to" placeholder="0x…">
+            </div>
+            <div class="field">
+              <label>数量（人类可读，自动按 decimals 换算）</label>
+              <input type="text" id="tr-tok-amount" placeholder="100.5">
+            </div>
+            <div class="btn-row">
+              <button class="btn" id="tr-tok-bal">查我的代币余额</button>
+              <button class="btn primary" id="tr-tok-go">发送</button>
+            </div>
+            <div class="result-box" id="tr-tok-out"></div>
+            <hr class="hr">
+            <span class="sub-label">授权 approve / allowance</span>
+            <div class="field">
+              <label>被授权方 spender</label>
+              <input type="text" id="tr-ap-spender" placeholder="0x…（如 DEX Router 地址）">
+            </div>
+            <div class="row">
+              <div class="field">
+                <label>授权数量（人类可读）</label>
+                <input type="text" id="tr-ap-amount" placeholder="1000">
+              </div>
+              <button class="btn" id="tr-ap-max">无限授权</button>
+              <button class="btn primary" id="tr-ap-go">授权</button>
+              <button class="btn" id="tr-ap-query">查 allowance</button>
+            </div>
+            <div class="result-box" id="tr-ap-out"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= Interact ================= -->
+      <section class="page" id="page-interact">
+        <div class="page-head">
+          <h2>合约调用</h2>
+          <p>读取合约状态（cast call）或发送交易（cast send）。</p>
+        </div>
+        <div class="card">
+          <div class="tabs" id="int-tabs">
+            <button data-tab="int-read" class="active">读取 (call)</button>
+            <button data-tab="int-write">写入 (send)</button>
+            <button data-tab="int-raw">Raw Calldata（未开源合约）</button>
+          </div>
+          <div class="tab-pane active" id="tab-int-read">
+            <div class="field">
+              <label>合约地址</label>
+              <input type="text" id="ir-addr" placeholder="0x…">
+            </div>
+            <div class="row">
+              <div class="field">
+                <label>方法签名</label>
+                <input type="text" id="ir-sig" placeholder='balanceOf(address)(uint256)'>
+              </div>
+              <div class="field">
+                <label>参数（空格分隔，字符串加引号）</label>
+                <input type="text" id="ir-args" placeholder="0xabc… 100">
+              </div>
+              <button class="btn primary" id="ir-go">调用</button>
+            </div>
+            <div class="note" data-i18n-html="note.callsig">签名格式：<code>name(argTypes)(returnTypes)</code>，例如 <code>totalSupply()(uint256)</code>。返回类型可省略，将输出原始十六进制。</div>
+            <div class="result-box" id="ir-out"></div>
+          </div>
+          <div class="tab-pane" id="tab-int-write">
+            <div class="field">
+              <label>合约地址</label>
+              <input type="text" id="iw-addr" placeholder="0x…">
+            </div>
+            <div class="row">
+              <div class="field">
+                <label>方法签名</label>
+                <input type="text" id="iw-sig" placeholder="transfer(address,uint256)">
+              </div>
+              <div class="field">
+                <label>参数</label>
+                <input type="text" id="iw-args" placeholder="0xabc… 1000000">
+              </div>
+            </div>
+            <div class="grid c3">
+              <div class="field">
+                <label>私钥</label>
+                <input type="password" id="iw-pk" placeholder="0x…">
+              </div>
+              <div class="field">
+                <label>或 Keystore 账户</label>
+                <input type="text" id="iw-account" placeholder="my-account">
+              </div>
+              <div class="field">
+                <label>Keystore 密码</label>
+                <input type="password" id="iw-pass" placeholder="使用账户名时必填">
+              </div>
+              <div class="field">
+                <label>ETH 金额（可选）</label>
+                <input type="text" id="iw-value" placeholder="0.1ether">
+              </div>
+            </div>
+            <div class="btn-row">
+              <button class="btn" id="iw-estimate">估算 Gas</button>
+              <button class="btn primary" id="iw-go">签名并发送</button>
+            </div>
+            <div class="result-box" id="iw-out"></div>
+          </div>
+          <div class="tab-pane" id="tab-int-raw">
+            <div class="note" style="margin:0 0 12px">直接发送原始 calldata，无需 ABI —— 适用于未开源 / 未验证的合约。可先在「编码 &amp; 转换」页用 4byte 反查或 ABI 编码生成 calldata。</div>
+            <div class="field">
+              <label>合约地址</label>
+              <input type="text" id="ic-addr" placeholder="0x…">
+            </div>
+            <div class="field">
+              <label>Calldata（0x 开头的十六进制）</label>
+              <textarea id="ic-data" placeholder="0xa9059cbb000000…" style="min-height:76px"></textarea>
+            </div>
+            <div class="grid c3">
+              <div class="field">
+                <label>私钥（写入时需要）</label>
+                <input type="password" id="ic-pk" placeholder="0x…">
+              </div>
+              <div class="field">
+                <label>或 Keystore 账户</label>
+                <input type="text" id="ic-account" placeholder="my-account">
+              </div>
+              <div class="field">
+                <label>Keystore 密码</label>
+                <input type="password" id="ic-pass" placeholder="使用账户名时必填">
+              </div>
+              <div class="field">
+                <label>ETH 金额（可选）</label>
+                <input type="text" id="ic-value" placeholder="0.1ether">
+              </div>
+            </div>
+            <div class="row">
+              <div class="field">
+                <label>返回值解码类型（可选，如 uint256 / (address,uint256)）</label>
+                <input type="text" id="ic-rettype" placeholder="留空则输出原始十六进制">
+              </div>
+            </div>
+            <div class="btn-row">
+              <button class="btn" id="ic-call">静态调用 (eth_call)</button>
+              <button class="btn" id="ic-estimate">估算 Gas</button>
+              <button class="btn primary" id="ic-send">签名并发送交易</button>
+            </div>
+            <div class="result-box" id="ic-out"></div>
+          </div>
+        </div>
+        <div class="card">
+          <h3>原始 Cast 命令 <span class="hint">高级用法：直接输入 cast 子命令</span></h3>
+          <div class="row">
+            <div class="field">
+              <input type="text" id="raw-cast" placeholder="storage 0xdead… 0 --rpc-url …（无需写 cast 前缀，回车执行）">
+            </div>
+            <button class="btn" id="raw-cast-go">执行</button>
+          </div>
+          <div class="result-box" id="raw-cast-out"></div>
+        </div>
+      </section>
+
+      <!-- ================= Query ================= -->
+      <section class="page" id="page-query">
+        <div class="page-head">
+          <h2>链上查询</h2>
+          <p>余额、交易、区块、Nonce、合约代码等只读查询。</p>
+        </div>
+        <div class="grid c2">
+          <div class="card">
+            <h3>账户</h3>
+            <div class="field">
+              <label>地址 / ENS</label>
+              <input type="text" id="q-addr" placeholder="0x… 或 name.eth">
+            </div>
+            <div class="btn-row" style="margin-top:0">
+              <button class="btn primary sm" data-q="balance">余额</button>
+              <button class="btn sm" data-q="nonce">Nonce</button>
+              <button class="btn sm" data-q="code">合约代码</button>
+              <button class="btn sm" data-q="codesize">代码大小</button>
+            </div>
+            <div class="result-box" id="q-addr-out"></div>
+          </div>
+          <div class="card">
+            <h3>交易</h3>
+            <div class="field">
+              <label>交易哈希</label>
+              <input type="text" id="q-tx" placeholder="0x…">
+            </div>
+            <div class="btn-row" style="margin-top:0">
+              <button class="btn primary sm" data-q="tx">交易详情</button>
+              <button class="btn sm" data-q="receipt">回执 Receipt</button>
+            </div>
+            <div class="result-box" id="q-tx-out"></div>
+          </div>
+        </div>
+        <div class="grid c2">
+          <div class="card">
+            <h3>区块</h3>
+            <div class="row">
+              <div class="field">
+                <label>区块号 / latest</label>
+                <input type="text" id="q-block" placeholder="latest">
+              </div>
+              <button class="btn primary" data-q="block">查询</button>
+            </div>
+            <div class="result-box" id="q-block-out"></div>
+          </div>
+          <div class="card">
+            <h3>存储槽读取</h3>
+            <div class="row">
+              <div class="field">
+                <label>合约地址</label>
+                <input type="text" id="q-st-addr" placeholder="0x…">
+              </div>
+              <div class="field" style="max-width:120px">
+                <label>槽位</label>
+                <input type="text" id="q-st-slot" placeholder="0">
+              </div>
+              <button class="btn primary" data-q="storage">读取</button>
+            </div>
+            <div class="result-box" id="q-st-out"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= Tools ================= -->
+      <section class="page" id="page-tools">
+        <div class="page-head">
+          <h2>编码 &amp; 转换</h2>
+          <p>常用的单位转换、ABI 编解码、哈希与地址工具，全部离线执行。</p>
+        </div>
+        <div class="grid c2">
+          <div class="card">
+            <h3>单位转换</h3>
+            <div class="row">
+              <div class="field">
+                <label>数值</label>
+                <input type="text" id="t-unit-val" placeholder="1.5">
+              </div>
+              <div class="field" style="max-width:130px">
+                <label>方向</label>
+                <select id="t-unit-dir">
+                  <option value="to-wei">ether → wei</option>
+                  <option value="from-wei">wei → ether</option>
+                  <option value="to-gwei">wei → gwei</option>
+                </select>
+              </div>
+              <button class="btn primary" id="t-unit-go">转换</button>
+            </div>
+            <div class="result-box" id="t-unit-out"></div>
+          </div>
+          <div class="card">
+            <h3>进制转换</h3>
+            <div class="row">
+              <div class="field">
+                <label>数值（自动识别 0x 前缀）</label>
+                <input type="text" id="t-base-val" placeholder="255 或 0xff">
+              </div>
+              <div class="field" style="max-width:130px">
+                <label>目标</label>
+                <select id="t-base-dir">
+                  <option value="to-hex">十进制 → Hex</option>
+                  <option value="to-dec">Hex → 十进制</option>
+                </select>
+              </div>
+              <button class="btn primary" id="t-base-go">转换</button>
+            </div>
+            <div class="result-box" id="t-base-out"></div>
+          </div>
+        </div>
+        <div class="grid c2">
+          <div class="card">
+            <h3>Keccak-256 哈希</h3>
+            <div class="row">
+              <div class="field">
+                <input type="text" id="t-keccak-val" placeholder="任意文本 或 0x 十六进制数据">
+              </div>
+              <button class="btn primary" id="t-keccak-go">哈希</button>
+            </div>
+            <div class="result-box" id="t-keccak-out"></div>
+          </div>
+          <div class="card">
+            <h3>函数选择器 / 事件主题</h3>
+            <div class="row">
+              <div class="field">
+                <input type="text" id="t-sig-val" placeholder="transfer(address,uint256)">
+              </div>
+              <div class="field" style="max-width:120px">
+                <select id="t-sig-kind">
+                  <option value="sig">函数 4byte</option>
+                  <option value="sig-event">事件 topic0</option>
+                </select>
+              </div>
+              <button class="btn primary" id="t-sig-go">计算</button>
+            </div>
+            <div class="result-box" id="t-sig-out"></div>
+          </div>
+        </div>
+        <div class="grid c2">
+          <div class="card">
+            <h3>ABI 编码</h3>
+            <div class="field">
+              <label>函数签名</label>
+              <input type="text" id="t-abi-sig" placeholder="transfer(address,uint256)">
+            </div>
+            <div class="row">
+              <div class="field">
+                <label>参数</label>
+                <input type="text" id="t-abi-args" placeholder="0xabc… 100">
+              </div>
+              <div class="field" style="max-width:150px">
+                <label>模式</label>
+                <select id="t-abi-mode">
+                  <option value="calldata">calldata（带选择器）</option>
+                  <option value="abi-encode">仅参数编码</option>
+                </select>
+              </div>
+              <button class="btn primary" id="t-abi-go">编码</button>
+            </div>
+            <div class="result-box" id="t-abi-out"></div>
+          </div>
+          <div class="card">
+            <h3>Calldata 解码</h3>
+            <div class="field">
+              <label>函数签名</label>
+              <input type="text" id="t-dec-sig" placeholder="transfer(address,uint256)">
+            </div>
+            <div class="row">
+              <div class="field">
+                <label>Calldata</label>
+                <input type="text" id="t-dec-data" placeholder="0xa9059cbb…">
+              </div>
+              <button class="btn primary" id="t-dec-go">解码</button>
+            </div>
+            <div class="result-box" id="t-dec-out"></div>
+          </div>
+        </div>
+        <div class="grid c2">
+          <div class="card">
+            <h3>地址工具</h3>
+            <div class="row">
+              <div class="field">
+                <input type="text" id="t-addr-val" placeholder="0x地址">
+              </div>
+              <div class="field" style="max-width:170px">
+                <select id="t-addr-kind">
+                  <option value="to-check-sum-address">校验和格式化</option>
+                  <option value="compute-address">计算 CREATE 地址（输入部署者）</option>
+                </select>
+              </div>
+              <button class="btn primary" id="t-addr-go">执行</button>
+            </div>
+            <div class="result-box" id="t-addr-out"></div>
+          </div>
+          <div class="card">
+            <h3>4byte 反查 <span class="hint">通过公共选择器库查询</span></h3>
+            <div class="row">
+              <div class="field">
+                <input type="text" id="t-4b-val" placeholder="0xa9059cbb 或完整 calldata">
+              </div>
+              <button class="btn primary" id="t-4b-go">反查</button>
+            </div>
+            <div class="result-box" id="t-4b-out"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= Wallet ================= -->
+      <section class="page" id="page-wallet">
+        <div class="page-head">
+          <h2>钱包工具</h2>
+          <p>生成钱包、私钥推导地址、消息签名与 Keystore 管理。</p>
+        </div>
+        <div class="grid c2">
+          <div class="card">
+            <h3>生成新钱包</h3>
+            <p style="font-size:12.5px;color:var(--text-2);margin-bottom:12px">本地随机生成，助记词和私钥只显示一次，请妥善保存。</p>
+            <div class="btn-row" style="margin-top:0">
+              <button class="btn primary" id="w-new">生成钱包</button>
+              <button class="btn" id="w-new-mn">生成助记词钱包</button>
+            </div>
+            <div class="result-box" id="w-new-out"></div>
+          </div>
+          <div class="card">
+            <h3>私钥 → 地址</h3>
+            <div class="row">
+              <div class="field">
+                <input type="password" id="w-pk" placeholder="0x私钥">
+              </div>
+              <button class="btn primary" id="w-pk-go">推导地址</button>
+            </div>
+            <div class="result-box" id="w-pk-out"></div>
+          </div>
+        </div>
+        <div class="grid c2">
+          <div class="card">
+            <h3>消息签名</h3>
+            <div class="field">
+              <label>消息</label>
+              <input type="text" id="w-sign-msg" placeholder="hello world">
+            </div>
+            <div class="row">
+              <div class="field">
+                <label>私钥</label>
+                <input type="password" id="w-sign-pk" placeholder="0x…">
+              </div>
+              <button class="btn primary" id="w-sign-go">签名</button>
+            </div>
+            <div class="result-box" id="w-sign-out"></div>
+          </div>
+          <div class="card">
+            <h3>签名验证</h3>
+            <div class="row">
+              <div class="field">
+                <label>消息</label>
+                <input type="text" id="w-ver-msg" placeholder="hello world">
+              </div>
+              <div class="field">
+                <label>签名者地址</label>
+                <input type="text" id="w-ver-addr" placeholder="0x…">
+              </div>
+            </div>
+            <div class="row" style="margin-top:10px">
+              <div class="field">
+                <label>签名</label>
+                <input type="text" id="w-ver-sig" placeholder="0x…">
+              </div>
+              <button class="btn primary" id="w-ver-go">验证签名</button>
+            </div>
+            <div class="result-box" id="w-ver-out"></div>
+          </div>
+        </div>
+        <div class="card">
+          <h3>Keystore 账户 <span class="hint">~/.foundry/keystores · 供 --account 使用</span></h3>
+          <div class="row">
+            <div class="field">
+              <label>账户名</label>
+              <input type="text" id="w-ks-name" placeholder="my-account">
+            </div>
+            <div class="field">
+              <label>私钥（导入用）</label>
+              <input type="password" id="w-ks-pk" placeholder="0x…">
+            </div>
+            <div class="field">
+              <label>密码</label>
+              <input type="password" id="w-ks-pass" placeholder="keystore 密码">
+            </div>
+            <button class="btn primary" id="w-ks-import">导入</button>
+            <button class="btn" id="w-ks-list">列出账户</button>
+          </div>
+          <div class="result-box" id="w-ks-out"></div>
+        </div>
+      </section>
+
+      <!-- ================= Anvil ================= -->
+      <section class="page" id="page-anvil">
+        <div class="page-head">
+          <h2>Anvil 本地节点</h2>
+          <p>一键启动本地开发链，支持主网分叉，内置 10 个测试账户。</p>
+        </div>
+        <div class="card">
+          <div class="row-c" style="justify-content:space-between;margin-bottom:14px">
+            <h3 style="margin-bottom:0">节点控制 <span id="anvil-status" class="badge gray">未运行</span></h3>
+            <div class="row-c">
+              <button class="btn primary" id="anvil-start">▶ 启动节点</button>
+              <button class="btn danger" id="anvil-stop" disabled>■ 停止</button>
+            </div>
+          </div>
+          <div class="grid c3">
+            <div class="field">
+              <label>端口</label>
+              <input type="text" id="anvil-port" value="8545">
+            </div>
+            <div class="field">
+              <label>Chain ID</label>
+              <input type="text" id="anvil-chainid" value="31337">
+            </div>
+            <div class="field">
+              <label>出块间隔（秒，留空=即时）</label>
+              <input type="text" id="anvil-blocktime" placeholder="即时出块">
+            </div>
+          </div>
+          <div class="row">
+            <div class="field">
+              <label>分叉 RPC（可选 — 填入后 fork 该网络）</label>
+              <input type="text" id="anvil-fork" placeholder="https://eth-mainnet.g.alchemy.com/v2/…">
+            </div>
+            <div class="field" style="max-width:170px">
+              <label>分叉区块（可选）</label>
+              <input type="text" id="anvil-fork-block" placeholder="latest">
+            </div>
+          </div>
+          <div class="note">启动后可在右上角切换到「Anvil Local」网络，直接对本地链部署与调用。</div>
+        </div>
+        <div class="card">
+          <h3>链操作 <span class="hint">通过 cast rpc 作用于右上角当前网络（Anvil / 分叉链专用）</span></h3>
+          <div class="grid c2">
+            <div>
+              <div class="row">
+                <div class="field">
+                  <label>挖块数量</label>
+                  <input type="text" id="av-mine-n" value="1">
+                </div>
+                <button class="btn" id="av-mine">⛏ 挖块</button>
+              </div>
+              <div class="row" style="margin-top:10px">
+                <div class="field">
+                  <label>时间快进（秒）</label>
+                  <input type="text" id="av-time-s" placeholder="3600">
+                </div>
+                <button class="btn" id="av-time">⏩ 快进并挖块</button>
+              </div>
+              <div class="row" style="margin-top:10px">
+                <div class="field">
+                  <label>状态快照</label>
+                  <select id="av-snapshots"><option value="">— 暂无快照 —</option></select>
+                </div>
+                <button class="btn" id="av-snap">📸 创建</button>
+                <button class="btn" id="av-revert">↩ 回滚</button>
+              </div>
+            </div>
+            <div>
+              <div class="field">
+                <label>设置余额 — 地址</label>
+                <input type="text" id="av-bal-addr" placeholder="0x…">
+              </div>
+              <div class="row">
+                <div class="field">
+                  <label>余额（ETH）</label>
+                  <input type="text" id="av-bal-amount" placeholder="1000">
+                </div>
+                <button class="btn" id="av-setbal">💰 设置余额</button>
+              </div>
+              <div class="row" style="margin-top:10px">
+                <div class="field">
+                  <label>模拟账户 impersonate（大户测试）</label>
+                  <input type="text" id="av-imp-addr" placeholder="0x…">
+                </div>
+                <button class="btn" id="av-imp-on">开启</button>
+                <button class="btn" id="av-imp-off">停止</button>
+              </div>
+            </div>
+          </div>
+          <div class="note" data-i18n-html="note.impersonate">impersonate 开启后，在「合约调用」附加 <code>--from 该地址 --unlocked</code> 即可以该账户身份发交易（无需私钥）。</div>
+          <div class="result-box" id="av-ops-out"></div>
+        </div>
+        <div class="card" id="anvil-accounts-card" style="display:none">
+          <h3>测试账户 <span class="hint">点击地址或「私钥」即可复制</span></h3>
+          <table class="list" id="anvil-accounts">
+            <thead><tr><th>#</th><th>地址</th><th>余额</th><th></th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <div class="card">
+          <div class="term-tools" style="margin-top:0">
+            <span class="lab">节点日志</span>
+            <div class="acts">
+              <button class="icon-btn" data-copy-term="anvil-term">复制</button>
+              <button class="icon-btn" data-clear-term="anvil-term">清空</button>
+            </div>
+          </div>
+          <div class="term" id="anvil-term" data-placeholder="anvil 日志将显示在这里…" style="max-height:none;height:360px"></div>
+        </div>
+      </section>
+
+      <!-- ================= Chisel ================= -->
+      <section class="page" id="page-chisel">
+        <div class="page-head">
+          <h2>Chisel — Solidity REPL</h2>
+          <p data-i18n-html="desc.chisel">交互式 Solidity 沙盒，即输即得。输入 <code>!help</code> 查看内置命令。</p>
+        </div>
+        <div class="card repl">
+          <div class="row-c" style="justify-content:space-between;margin-bottom:10px">
+            <span id="chisel-status" class="badge gray">未启动</span>
+            <div class="row-c">
+              <button class="btn primary sm" id="chisel-start">▶ 启动会话</button>
+              <button class="btn danger sm" id="chisel-stop" disabled>■ 结束</button>
+              <button class="icon-btn" data-clear-term="chisel-term">清空</button>
+            </div>
+          </div>
+          <div class="term" id="chisel-term" data-placeholder='点击「启动会话」，然后尝试输入：uint a = 1 + 1; 再输入 a 查看值'></div>
+          <div class="repl-input">
+            <input type="text" id="chisel-input" placeholder="输入 Solidity 语句，回车执行…" disabled>
+            <button class="btn primary" id="chisel-send" disabled>执行</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= ABI Workbench ================= -->
+      <section class="page" id="page-workbench">
+        <div class="page-head">
+          <h2>ABI 工作台</h2>
+          <p>加载合约 ABI 后，点选函数直接调用 —— 无需手写签名。</p>
+        </div>
+        <div class="card">
+          <h3>合约与 ABI</h3>
+          <div class="field">
+            <label>合约地址</label>
+            <input type="text" id="wb-addr" placeholder="0x…">
+          </div>
+          <div class="tabs" id="wb-tabs">
+            <button data-tab="wb-proj" class="active">从项目编译产物加载</button>
+            <button data-tab="wb-paste">粘贴 ABI JSON</button>
+          </div>
+          <div class="tab-pane active" id="tab-wb-proj">
+            <div class="row">
+              <div class="field">
+                <label>项目路径</label>
+                <input type="text" id="wb-project" placeholder="/path/to/project">
+              </div>
+              <button class="btn" id="wb-pick">浏览…</button>
+            </div>
+            <div class="row" style="margin-top:10px">
+              <div class="field">
+                <label>合约</label>
+                <select id="wb-contract"><option value="">— 请先选择项目 —</option></select>
+              </div>
+              <button class="btn primary" id="wb-load">加载 ABI</button>
+            </div>
+          </div>
+          <div class="tab-pane" id="tab-wb-paste">
+            <div class="field">
+              <label>ABI JSON（支持完整 artifact 或纯 ABI 数组）</label>
+              <textarea id="wb-abi-paste" placeholder='[{"type":"function","name":"balanceOf",…}]' style="min-height:100px"></textarea>
+            </div>
+            <button class="btn primary" id="wb-parse">解析 ABI</button>
+          </div>
+          <div id="wb-abi-status" style="margin-top:10px"></div>
+        </div>
+        <div class="card" id="wb-signer-card" style="display:none">
+          <h3>签名账户 <span class="hint">写函数发送交易时使用</span></h3>
+          <div class="grid c3">
+            <div class="field">
+              <label>私钥</label>
+              <input type="password" id="wb-pk" placeholder="0x…">
+            </div>
+            <div class="field">
+              <label>或 Keystore 账户</label>
+              <input type="text" id="wb-account" placeholder="my-account">
+            </div>
+            <div class="field">
+              <label>Keystore 密码</label>
+              <input type="password" id="wb-pass" placeholder="使用账户名时必填">
+            </div>
+          </div>
+        </div>
+        <div class="card" id="wb-reads-card" style="display:none">
+          <div class="row-c" style="justify-content:space-between;margin-bottom:12px">
+            <h3 style="margin-bottom:0">读函数 <span class="hint" id="wb-reads-count"></span></h3>
+            <button class="btn sm" id="wb-read-all">⚡ 一键读取全部无参函数</button>
+          </div>
+          <div id="wb-reads"></div>
+        </div>
+        <div class="card" id="wb-writes-card" style="display:none">
+          <h3>写函数 <span class="hint" id="wb-writes-count"></span></h3>
+          <div id="wb-writes"></div>
+        </div>
+      </section>
+
+      <!-- ================= Debug & Logs ================= -->
+      <section class="page" id="page-debug">
+        <div class="page-head">
+          <h2>调试 &amp; 日志</h2>
+          <p>交易 Trace 重放、模拟调用跟踪与链上事件日志查询。</p>
+        </div>
+        <div class="grid c2">
+          <div class="card">
+            <h3>交易 Trace 重放 <span class="hint">cast run</span></h3>
+            <div class="field">
+              <label>交易哈希</label>
+              <input type="text" id="dbg-tx" placeholder="0x…">
+            </div>
+            <div class="row-c" style="justify-content:space-between">
+              <label class="row-c" style="font-size:12.5px;color:var(--text-2)">
+                <input type="checkbox" id="dbg-quick" style="width:auto"> 快速模式（跳过同区块前置交易）
+              </label>
+              <button class="btn primary" id="dbg-run">▶ 重放并显示 Trace</button>
+            </div>
+          </div>
+          <div class="card">
+            <h3>模拟调用 Trace <span class="hint">cast call --trace</span></h3>
+            <div class="field">
+              <label>合约地址</label>
+              <input type="text" id="dbg-addr" placeholder="0x…">
+            </div>
+            <div class="row">
+              <div class="field">
+                <label>方法签名</label>
+                <input type="text" id="dbg-sig" placeholder="transfer(address,uint256)">
+              </div>
+              <div class="field">
+                <label>参数</label>
+                <input type="text" id="dbg-args" placeholder="0x… 100">
+              </div>
+            </div>
+            <div class="row">
+              <div class="field">
+                <label>--from（可选）</label>
+                <input type="text" id="dbg-from" placeholder="0x…">
+              </div>
+              <button class="btn primary" id="dbg-call">▶ 模拟并跟踪</button>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="term-tools" style="margin-top:0">
+            <span class="lab">Trace 输出</span>
+            <div class="acts">
+              <button class="icon-btn" data-copy-term="dbg-term">复制</button>
+              <button class="icon-btn" data-clear-term="dbg-term">清空</button>
+            </div>
+          </div>
+          <div class="term" id="dbg-term" data-placeholder="调用栈 Trace 将显示在这里…" style="max-height:none;height:300px"></div>
+        </div>
+        <div class="card">
+          <h3>事件日志查询 <span class="hint">cast logs</span></h3>
+          <div class="row">
+            <div class="field">
+              <label>合约地址（可选）</label>
+              <input type="text" id="logs-addr" placeholder="0x…">
+            </div>
+            <div class="field">
+              <label>事件签名（可选）</label>
+              <input type="text" id="logs-sig" placeholder="Transfer(address indexed from, address indexed to, uint256 value)">
+            </div>
+          </div>
+          <div class="row" style="margin-top:10px">
+            <div class="field" style="max-width:160px">
+              <label>起始区块</label>
+              <input type="text" id="logs-from" placeholder="earliest / 数字">
+            </div>
+            <div class="field" style="max-width:160px">
+              <label>结束区块</label>
+              <input type="text" id="logs-to" placeholder="latest">
+            </div>
+            <button class="btn primary" id="logs-go">查询日志</button>
+          </div>
+          <div class="term" id="logs-term" data-placeholder="日志将显示在这里…" style="margin-top:12px"></div>
+        </div>
+      </section>
+
+      <!-- ================= Settings ================= -->
+      <section class="page" id="page-settings">
+        <div class="page-head">
+          <h2>网络 &amp; 设置</h2>
+          <p>管理 RPC 网络列表与全局默认项，配置保存在本地。</p>
+        </div>
+        <div class="card">
+          <h3>网络列表</h3>
+          <table class="list" id="chains-table">
+            <thead><tr><th>名称</th><th>Chain ID</th><th>RPC URL</th><th>浏览器</th><th></th></tr></thead>
+            <tbody></tbody>
+          </table>
+          <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border)">
+            <div class="grid c3">
+              <div class="field"><label>名称</label><input type="text" id="s-c-name" placeholder="My Chain"></div>
+              <div class="field"><label>Chain ID</label><input type="text" id="s-c-id" placeholder="1"></div>
+              <div class="field"><label>浏览器 URL（可选）</label><input type="text" id="s-c-explorer" placeholder="https://etherscan.io"></div>
+            </div>
+            <div class="row">
+              <div class="field"><label>RPC URL</label><input type="text" id="s-c-rpc" placeholder="https://…"></div>
+              <button class="btn primary" id="s-c-add">添加网络</button>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <h3>Etherscan API Key <span class="hint">用于部署后自动验证合约</span></h3>
+          <div class="row">
+            <div class="field">
+              <input type="password" id="s-etherscan" placeholder="API Key">
+            </div>
+            <button class="btn primary" id="s-etherscan-save">保存</button>
+          </div>
+        </div>
+        <div class="card">
+          <h3>关于</h3>
+          <div class="kv"><span class="k">应用</span><span class="v">Hearth 0.3.0</span></div>
+          <div class="kv"><span class="k">工具链</span><span class="v" id="s-versions">—</span></div>
+          <div class="kv"><span class="k">Foundry</span><span class="v copyable" id="s-foundry-link">https://github.com/foundry-rs/foundry</span></div>
+          <div style="margin-top:16px;border-top:1px solid var(--border);padding-top:16px">
+            <img src="assets/built-with-claude.png" alt="Claude 5" style="width:100%;max-width:560px;border-radius:12px;display:block">
+            <p style="font-size:12.5px;color:var(--text-2);margin-top:10px">此应用由 Claude (Fable 5) 设计与开发</p>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+<script src="i18n.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
